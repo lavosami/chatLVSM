@@ -1,3 +1,0 @@
-/Users/lavosami/Downloads/Code/CPProjects/chatLVSM/client/build/CMakeFiles/client.dir
-/Users/lavosami/Downloads/Code/CPProjects/chatLVSM/client/build/CMakeFiles/edit_cache.dir
-/Users/lavosami/Downloads/Code/CPProjects/chatLVSM/client/build/CMakeFiles/rebuild_cache.dir
