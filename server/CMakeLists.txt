@@ -1,0 +1,16 @@
+cmake_minimum_required(VERSION 3.14)
+project(server)
+
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+set(Boost_USE_STATIC_LIBS OFF)
+set(Boost_USE_MULTITHREADED ON)
+set(Boost_USE_STATIC_RUNTIME OFF)
+find_package(Boost 1.83.0 COMPONENTS system thread)
+
+if(Boost_FOUND)
+    include_directories(${Boost_INCLUDE_DIRS})
+    add_executable(server start_server.cpp Server.hpp Server.cpp protocol.hpp)
+    target_link_libraries(server ${Boost_LIBRARIES})
+endif()
