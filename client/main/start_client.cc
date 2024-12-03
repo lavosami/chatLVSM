@@ -1,4 +1,4 @@
-#include "Client.hpp"
+#include "lib/Client.h"
 
 int main(int argc, char* argv[]) {
   try {
@@ -21,7 +21,8 @@ int main(int argc, char* argv[]) {
 
     while (true) {
       memset(message.data(), '\0', message.size());
-      if (!std::cin.getline(message.data(), MAX_IP_PACK_SIZE - PADDING - MAX_NICKNAME)) {
+      if (!std::cin.getline(message.data(),
+                            MAX_IP_PACK_SIZE - PADDING - MAX_NICKNAME)) {
         std::cin.clear();
       }
       client.write(message);
@@ -29,10 +30,9 @@ int main(int argc, char* argv[]) {
 
     client.close();
     t.join();
-    }
-    catch (std::exception& e) {
-      std::cerr << "Exception: " << e.what() << "\n";
-    }
+  } catch (std::exception& e) {
+    std::cerr << "Exception: " << e.what() << "\n";
+  }
 
-    return 0;
+  return 0;
 }
