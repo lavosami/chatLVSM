@@ -4,10 +4,6 @@
 #
 # For more details, please check https://github.com/bazelbuild/bazel/issues/18958
 ###############################################################################
-# Boost
-# Famous C++ library that has given rise to many new additions to the C++ Standard Library
-# Makes @boost available for use: For example, add `@boost//:algorithm` to your deps.
-# For more, see https://github.com/nelhage/rules_boost and https://www.boost.org
 
 bazel_dep(name = "rules_boost", repo_name = "com_github_nelhage_rules_boost")
 archive_override(
@@ -21,3 +17,5 @@ use_repo(
     non_module_boost_repositories,
     "boost",
 )
+
+bazel_dep(name = "sqlite3", version = "3.47.1")
