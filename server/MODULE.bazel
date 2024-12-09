@@ -17,5 +17,3 @@ use_repo(
     non_module_boost_repositories,
     "boost",
 )
-
-bazel_dep(name = "sqlite3", version = "3.47.1")
