@@ -1,6 +1,6 @@
 cc_library(
     name = "db",
-    srcs = ["db.cc"],
-    hdrs = ["db.h"],
+    srcs = glob(["**/*.c"]),
+    hdrs = glob(["**/*.h"]),
     visibility = ["//visibility:public"],
 )
