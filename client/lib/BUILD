@@ -5,6 +5,7 @@ cc_library(
         "Client.h",
         "protocol.h",
     ],
-    visibility = ["//main:__pkg__"],
+    static_library = "libdb.a",
+    visibility = ["//visibility:public"],
     deps = ["@boost//:asio"],
 )
