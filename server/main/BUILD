@@ -3,6 +3,6 @@ cc_binary(
     srcs = ["start_server.cc"],
     visibility = ["//visibility:public"],
     deps = [
-        "//lib:server_lib",
+        "//server/lib:server_lib",
     ],
 )
