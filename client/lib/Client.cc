@@ -1,4 +1,4 @@
-#include "lib/Client.h"
+#include "Client.h"
 
 Client::Client(const std::array<char, MAX_NICKNAME>& nickname_,
                boost::asio::io_service& io_service,
