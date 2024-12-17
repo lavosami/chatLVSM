@@ -1,7 +1,10 @@
 #include <sqlite3.h>
+#include <cstdio>
+#include <string>
 
-void createUserTable(sqlite3* db);
-void createMessageTable(sqlite3* db);
-void createChatTable(sqlite3* db);
+void createUser(sqlite3* db);
+void createChat(sqlite3* db);
+void createMessage(sqlite3* db);
 
-void createDB();
+sqlite3* createDB(sqlite3* dbName);
+void deleteDB(const std::string dbName);
