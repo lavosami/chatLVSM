@@ -1,4 +1,7 @@
 #include <sqlite3.h>
 #include <iostream>
 
-void hello();
+void addUser();
+void deleteUser();
+void getUser();
+void editUser();
