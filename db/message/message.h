@@ -1,4 +1,7 @@
 #include <sqlite3.h>
 #include <iostream>
 
-void hello();
+void addMessage();
+void deleteMessage();
+void getMessage();
+void editMessage();

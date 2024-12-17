@@ -1,4 +1,5 @@
 #include <sqlite3.h>
 #include <iostream>
 
-void hello();
+void addChat();
+void getChat();
