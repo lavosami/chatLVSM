@@ -1,5 +1,6 @@
 #include "chat.h"
+#include "db.h"
 
-void hello() {
+void addchat() {
   std::cout << "Hello" << std::endl;
 }
