@@ -2,9 +2,9 @@
 #include <cstdio>
 #include <string>
 
-void createUser(sqlite3* db);
-void createChat(sqlite3* db);
-void createMessage(sqlite3* db);
+void createUser();
+void createChat();
+void createMessage();
 
-sqlite3* createDB(sqlite3* dbName);
-void deleteDB(const std::string dbName);
+void createDB();
+void deleteDB();
