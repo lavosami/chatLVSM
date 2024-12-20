@@ -65,28 +65,34 @@ void editUser(std::string& login, std::string& password) {
   nedit << "SELECT * FROM User WHERE password = '" << password << "';";
   //edit << "UPDATE INTO User password = '" << password << "';";
 
-  if (getUser) {
-    std::cout << "User found" << login << std::endl;
-    std::cout << "Old password: " << std::endl;
-    std::cin >> oldpassword;
-    prom = password;
-    if (prom == oldpassword) {
-      std::cout << "Type in new password: " << std::endl;
-      std::cin >> newpassword;
-
-      std::cout << "New password is: " << newpassword << std::endl;
-      password = newpassword;
-      std::cout << password << std::endl;
-
-      edit << "UPDATE User SET password = '" << password << "' WHERE login = '"
-           << login << "';";
-
-      int reg = sqlite3_exec(db, edit.str().c_str(), NULL, NULL, NULL);
-    } else {
-      std::cout << "Password is incorrect!";
-      //добавить типо цикла, чтобы было прикольно и можно было еще раз ввести пароль, типа вдруг ошибся и такой блиииииин
-    }
-  } else {
-    !getUser;
+  if (!getUser) {
+    std::cout << "User was not found!" << std::endl;
   }
+
+  std::cout << "User found" << login << std::endl;
+  std::cout << "Old password: " << std::endl;
+  std::cin >> oldpassword;
+  prom = password;
+
+  while (prom != oldpassword) {
+    std::cout << "Wrong password!" << std::endl;
+    std::cout << "Old password: " << std::endl;
+    std::getline(std::cin, oldpassword);
+
+    if (oldpassword == "\\\\exit") {
+      return;
+    }
+  }
+
+  std::cout << "Type in new password: " << std::endl;
+  std::cin >> newpassword;
+
+  std::cout << "New password is: " << newpassword << std::endl;
+  password = newpassword;
+  std::cout << password << std::endl;
+
+  edit << "UPDATE User SET password = '" << password << "' WHERE login = '"
+       << login << "';";
+
+  int reg = sqlite3_exec(db, edit.str().c_str(), NULL, NULL, NULL);
 }
