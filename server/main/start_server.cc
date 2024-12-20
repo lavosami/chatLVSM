@@ -48,6 +48,25 @@ int main(int argc, char* argv[]) {
 
     sqlite3_close(db);
 
+    std::string command;
+
+    while (true) {
+      std::cout << ">> ";
+      std::getline(std::cin, command);  // Считывает строку, включая пробелы
+
+      // Обработка команд
+      if (command == "exit") {
+        std::cout << "exiting..." << std::endl;
+        return 0;
+      } else if (command == "hello") {
+        std::cout << "hello." << std::endl;
+      } else if (command == "help") {
+        std::cout << "avaliable commands: hello, help, exit" << std::endl;
+      } else {
+        std::cout << "command not found: " << command << std::endl;
+      }
+    }
+
     workers.join_all();
   } catch (std::exception& e) {
     std::cerr << "Exception: " << e.what() << "\n";
