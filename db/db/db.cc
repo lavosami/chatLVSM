@@ -4,7 +4,10 @@
 #include <iostream>
 #include <sstream>
 
-void createUser(sqlite3* db) {
+void createUser() {
+  sqlite3* db;
+  int rc = sqlite3_open("db.sqlite3", &db);
+
   std::stringstream user;
   user << "CREATE TABLE User("
           "login TEXT PRIMARY KEY NOT NULL,"
@@ -12,9 +15,13 @@ void createUser(sqlite3* db) {
   std::cout << user.str() << std::endl;
 
   int usrreg = sqlite3_exec(db, user.str().c_str(), NULL, NULL, NULL);
+  sqlite3_close(db);
 }
 
-void createChat(sqlite3* db) {
+void createChat() {
+  sqlite3* db;
+  int rc = sqlite3_open("db.sqlite3", &db);
+
   std::stringstream chat;
   chat << "CREATE TABLE Chat("
           "port INTEGER PRIMARY KEY NOT NULL,"
@@ -23,9 +30,13 @@ void createChat(sqlite3* db) {
   std::cout << chat.str() << std::endl;
 
   int chatreg = sqlite3_exec(db, chat.str().c_str(), NULL, NULL, NULL);
+  sqlite3_close(db);
 }
 
-void createMessage(sqlite3* db) {
+void createMessage() {
+  sqlite3* db;
+  int rc = sqlite3_open("db.sqlite3", &db);
+
   std::stringstream message;
   message << "CREATE TABLE Message("
              "chatport INTEGER PRIMARY KEY NOT NULL,"
@@ -37,19 +48,21 @@ void createMessage(sqlite3* db) {
   std::cout << message.str() << std::endl;
 
   int messagereg = sqlite3_exec(db, message.str().c_str(), NULL, NULL, NULL);
+  sqlite3_close(db);
 }
 
-sqlite3* createDB(sqlite3* dbName) {
-  int rc = sqlite3_open("db.sqlite3", &dbName);
+void createDB() {
+  sqlite3* db;
+  int rc = sqlite3_open("db.sqlite3", &db);
   std::cout << "Результат: " << rc << std::endl;
 
-  createUser(dbName);
-  createChat(dbName);
-  createMessage(dbName);
+  createUser();
+  createChat();
+  createMessage();
 
-  sqlite3_close(dbName);
+  sqlite3_close(db);
 }
 
-void deleteDB(const std::string dbName) {
-  int rc = remove(dbName.c_str());
+void deleteDB() {
+  int rc = remove("db.sqlite3");
 }

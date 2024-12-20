@@ -1,30 +1,92 @@
 #include "user.h"
 
-void addUser(sqlite3* db, std::string& login, std::string& password) {
+int addUser(std::string& login, std::string& password) {
+  sqlite3* db;
+  int rc = sqlite3_open("db.sqlite3", &db);
+
   std::stringstream add;
   add << "INSERT INTO User (login, password) VALUES ('" << login << "', '"
       << password << "');";
 
-  std::cout << "Пользователь: " << login << " добавлен!" << std::endl
-            << "Пароль: " << password << std::endl;
-  int reg = sqlite3_exec(db, add.str().c_str(), NULL, NULL, NULL);
+  if (getUser) {
+    std::cout << "User: " << login << " added!" << std::endl
+              << "Password: " << password << std::endl;
+    int reg = sqlite3_exec(db, add.str().c_str(), NULL, NULL, NULL);
+    return 1;
+  } else {
+    std::cout << "User already exists!";
+    return -1;
+  }
+
+  sqlite3_close(db);
 }
 
-bool deleteUser(sqlite3* db, std::string& login) {
+void deleteUser(std::string& login) {
+  sqlite3* db;
+  int rc = sqlite3_open("db.sqlite3", &db);
+
   std::stringstream del;
   del << "DELETE FROM User WHERE login = '" << login << "';";
+  if (getUser) {
+    std::cout << "User: " << login << " deleted!" << std::endl;
+    int reg = sqlite3_exec(db, del.str().c_str(), NULL, NULL, NULL);
+  } else {
+    std::cout << "User: " << login << " is not found!" << std::endl;
+  }
 
-  std::cout << "Пользователь: " << login << " удален!" << std::endl;
+  sqlite3_close(db);
 }
 
-bool getUser(sqlite3* db, std::string& login) {
+bool getUser(std::string& login) {
+  sqlite3* db;
+  int rc = sqlite3_open("db.sqlite3", &db);
+
   std::stringstream get;
   get << "SELECT * FROM User WHERE login = '" << login << "';";
   if (!login.empty()) {
-    std::cout << "Пользователь найден: " << login << std::endl;
+    std::cout << "User is found!: " << login << std::endl;
     return true;
   } else {
-    std::cout << "Такого пользователя нет" << std::endl;
+    std::cout << "No matches with: " << login << std::endl;
     return false;
+  }
+
+  sqlite3_close(db);
+}
+
+void editUser(std::string& login, std::string& password) {
+  sqlite3* db;
+  int rc = sqlite3_open("db.sqlite3", &db);
+
+  std::stringstream edit;
+  std::stringstream nedit;
+  std::string oldpassword, newpassword, prom;
+
+  nedit << "SELECT * FROM User WHERE password = '" << password << "';";
+  //edit << "UPDATE INTO User password = '" << password << "';";
+
+  if (getUser) {
+    std::cout << "User found" << login << std::endl;
+    std::cout << "Old password: " << std::endl;
+    std::cin >> oldpassword;
+    prom = password;
+    if (prom == oldpassword) {
+      std::cout << "Type in new password: " << std::endl;
+      std::cin >> newpassword;
+
+      std::cout << "New password is: " << newpassword << std::endl;
+      password = newpassword;
+      std::cout << password << std::endl;
+
+      edit << "UPDATE User SET password = '" << password << "' WHERE login = '"
+           << login << "';";
+
+      int reg = sqlite3_exec(db, edit.str().c_str(), NULL, NULL, NULL);
+    } else {
+      std::cout << "Password is incorrect!";
+      //добавить типо цикла, чтобы было прикольно и можно было еще раз ввести пароль, типа вдруг ошибся и такой блиииииин
+    }
+  } else {
+    !getUser;
   }
 }

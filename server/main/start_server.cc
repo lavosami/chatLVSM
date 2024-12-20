@@ -3,7 +3,6 @@
 #include "server/lib/Server.h"
 
 int main(int argc, char* argv[]) {
-  std::string name = "db.sqlite3";
   try {
     if (argc < 2) {
       std::cerr << "Usage: server <port> [<port> ...]\n";
@@ -35,18 +34,14 @@ int main(int argc, char* argv[]) {
       workers.add_thread(t);
     }
 
-    sqlite3* db;
-
-    int rc = sqlite3_open("db.sqlite3", &db);
     std::string login = "admin";
     std::string password = "password";
 
-    createDB(db);
+    createDB();
 
-    addUser(db, login, password);
-    getUser(db, login);
-
-    sqlite3_close(db);
+    addUser(login, password);
+    getUser(login);
+    editUser(login, password);
 
     std::string command;
 
@@ -71,5 +66,6 @@ int main(int argc, char* argv[]) {
   } catch (std::exception& e) {
     std::cerr << "Exception: " << e.what() << "\n";
   }
+
   return 0;
 }
