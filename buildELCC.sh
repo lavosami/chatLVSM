@@ -1,1 +1,0 @@
-bazel build //elcc:elcc

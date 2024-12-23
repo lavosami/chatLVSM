@@ -1,1 +1,0 @@
-bazel build //client/main:client

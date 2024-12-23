@@ -1,1 +1,0 @@
-bazel build //server/main:server
