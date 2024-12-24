@@ -40,8 +40,6 @@ int main(int argc, char* argv[]) {
     createDB();
 
     addUser(login, password);
-    getUser(login);
-    deleteUser(login);
 
     std::string command;
 
@@ -58,8 +56,7 @@ int main(int argc, char* argv[]) {
       } else if (command == "help") {
         std::cout << "avaliable commands: hello - to print hello." << std::endl
                   << "help - to see available commands" << std::endl
-                  << "exit - to exit." << std::endl
-                  << "reg - to start registration" << std::endl;
+                  << "exit - to exit." << std::endl;
       } else if (command == "reg") {
         std::string login, password;
 
