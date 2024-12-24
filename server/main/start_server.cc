@@ -40,8 +40,6 @@ int main(int argc, char* argv[]) {
     createDB();
 
     addUser(login, password);
-    getUser(login);
-    editUser(login, password);
 
     std::string command;
 
@@ -56,7 +54,21 @@ int main(int argc, char* argv[]) {
       } else if (command == "hello") {
         std::cout << "hello." << std::endl;
       } else if (command == "help") {
-        std::cout << "avaliable commands: hello, help, exit" << std::endl;
+        std::cout << "avaliable commands: hello - to print hello." << std::endl
+                  << "help - to see available commands" << std::endl
+                  << "exit - to exit." << std::endl;
+      } else if (command == "reg") {
+        std::string login, password;
+
+        std::cout << "Login: ";
+        std::getline(std::cin, login);  // Считывает строку, включая пробелы
+        std::cout << "Login - " << login << std::endl;
+
+        std::cout << "Password: ";
+        std::getline(std::cin, password);  // Считывает строку, включая пробелы
+        std::cout << "password - " << password << std::endl;
+
+        addUser(login, password);
       } else {
         std::cout << "command not found: " << command << std::endl;
       }
