@@ -2,6 +2,11 @@
 #include "db/db/db.h"
 #include "db/user/user.h"
 
+#include "elcc/Blowfish/Blowfish.h"
+#include "elcc/ECC/ECC.h"
+#include "elcc/RSA/RSA.h"
+#include "elcc/SHA256/SHA256.h"
+
 int main(int argc, char* argv[]) {
   try {
     if (argc != 5) {
@@ -25,28 +30,54 @@ int main(int argc, char* argv[]) {
     std::string password;
     std::string command;
 
+    SHA256 sha;
+
     if (getUser(login)) {
       std::cout << "User: " << login << " exists" << std::endl;
 
       std::cout << "Enter your password: ";
       std::getline(std::cin, password);
 
-      while (getPass(login) != password) {
+      sha.update(password);
+      std::array<uint8_t, 32> digest = sha.digest();
+
+      while (getPass(login) != SHA256::toString(digest)) {
         std::cout << "Wrong password. Try again: ";
         std::getline(std::cin, password);
+        sha.update(password);
+        std::array<uint8_t, 32> digest = sha.digest();
       }
     } else {
       std::cout << "User: " << login << " doesn't exist" << std::endl;
 
       std::cout << "Enter password: ";
       std::getline(std::cin, password);
-      addUser(login, password);
+
+      sha.update(password);
+      std::array<uint8_t, 32> digest = sha.digest();
+
+      addUser(login, SHA256::toString(digest));
       std::cout << login << " added to chat";
     }
 
     std::cout << "Hello, " << login << "!" << std::endl;
 
-    std::cout << "You choose " << argv[4] << " encryption. " << std::endl;
+    std::cout << "\nYou choose " << argv[4] << " encryption. " << std::endl;
+
+    // if (argv[4] == "blowfish") {
+    //   Blowfish blowfish;
+    //   std::cout << "Your key: " << blowfish.getKey() << std::endl;
+    // }
+
+    // if (argv[4] == "ecc") {
+    //   ECC ecc;
+    //   std::cout << "Your key: " << ecc.getKey() << std::endl;
+    // }
+
+    // if (argv[4] == "rsa") {
+    //   RSA rsa;
+    //   std::cout << "Your key: " << rsa.getKey() << std::endl;
+    // }
 
     while (true) {
       memset(message.data(), '\0', message.size());
