@@ -4,8 +4,8 @@
 
 int main(int argc, char* argv[]) {
   try {
-    if (argc != 4) {
-      std::cerr << "Usage: client <nickname> <host> <port>\n";
+    if (argc != 5) {
+      std::cerr << "Usage: client <nickname> <host> <port> <encryption>\n";
       return 1;
     }
     boost::asio::io_service io_service;
@@ -45,6 +45,8 @@ int main(int argc, char* argv[]) {
     }
 
     std::cout << "Hello, " << login << "!" << std::endl;
+
+    std::cout << "You choose " << argv[4] << " encryption. " << std::endl;
 
     while (true) {
       memset(message.data(), '\0', message.size());
