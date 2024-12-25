@@ -3,7 +3,7 @@
 #include <sstream>
 #include "db.h"
 
-void addMessage(std::string& chatport, std::string& user, std::string& time,
+void addMessage(std::string& port, std::string& user, std::string& time,
                 std::string& textofusr) {
 
   sqlite3* db;
@@ -13,14 +13,12 @@ void addMessage(std::string& chatport, std::string& user, std::string& time,
     std::cout << "This DataBase doesn't exists";
     sqlite3_close(db);
   } else {
-    std::stringstream add, Userlog, Chatlog;
+    std::stringstream add, userlog;
 
-    Userlog << "SELECT COUNT(*) FROM User WHERE login = '" << user << "';";
-    Chatlog << "SELECT COUNT(*) FROM Chat WHERE port = '" << chatport << "';";
+    userlog << "SELECT COUNT(*) FROM User WHERE login = '" << user << "';";
 
-    add << "INSERT INTO Message (chatport, user, time, textofusr) VALUES ('"
-        << chatport << "', '" << user << "', '" << time << "', '" << textofusr
-        << "');";
+    add << "INSERT INTO Message (port, user, time, textofusr) VALUES ('" << port
+        << "', '" << user << "', '" << time << "', '" << textofusr << "');";
 
     int reg = sqlite3_exec(db, add.str().c_str(), NULL, NULL, NULL);
 
@@ -28,8 +26,7 @@ void addMessage(std::string& chatport, std::string& user, std::string& time,
   }
 }
 
-bool getMessage(std::string& chatport, std::string& user,
-                std::string& textofusr) {
+bool getMessage(std::string& port, std::string& user, std::string& textofusr) {
   sqlite3* db;
   int rc = sqlite3_open("db.sqlite3", &db);
 
@@ -40,13 +37,13 @@ bool getMessage(std::string& chatport, std::string& user,
     std::stringstream get;
 
     get << "SELECT * FROM User WHERE login = '" << user
-        << "' AND SELECT * FROM Chat WHERE port = '" << chatport
+        << "' AND SELECT * FROM Chat WHERE port = '" << port
         << "' AND SELECT * FROM Message WHERE textofusr = '" << textofusr
         << "';";
 
     if (!user.empty()) {
       std::cout << "Message from User " << user << " found - " << textofusr
-                << " from chat with port " << chatport;
+                << " from chat with port " << port;
       return true;
     } else {
       std::cout << "User - " << user << " not found!";
@@ -57,7 +54,7 @@ bool getMessage(std::string& chatport, std::string& user,
   }
 }
 
-void deleteMessage(std::string& chatport, std::string& user,
+void deleteMessage(std::string& port, std::string& user,
                    std::string& textofusr) {
   sqlite3* db;
   int rc = sqlite3_open("db.sqlite3", &db);
@@ -69,12 +66,12 @@ void deleteMessage(std::string& chatport, std::string& user,
     std::stringstream del;
 
     del << "SELECT * FROM User WHERE login = '" << user
-        << "' AND SELECT * FROM Chat WHRE port = '" << chatport
+        << "' AND SELECT * FROM Chat WHRE port = '" << port
         << "' AND DELETE FROM Message WHERE textofusr = '" << textofusr << "';";
 
-    if (getMessage(chatport, user, textofusr)) {
+    if (getMessage(port, user, textofusr)) {
       std::cout << "Message of User- " << user << " is: " << textofusr
-                << " from chat with port: " << chatport << " is deleted!";
+                << " from chat with port: " << port << " is deleted!";
       int rc = sqlite3_exec(db, del.str().c_str(), NULL, NULL, NULL);
     } else {
       std::cout << "User - " << user << " not found!";

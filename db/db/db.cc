@@ -53,11 +53,10 @@ void createMessage() {
   } else {
     std::stringstream message;
     message << "CREATE TABLE Message("
-               "chatport INTEGER PRIMARY KEY NOT NULL,"
+               "port INTEGER NOT NULL,"
                "user TEXT NOT NULL,"
                "time DATETIME NOT NULL,"
                "textofusr TEXT,"
-               "FOREIGN KEY (chatport) REFERENCES chat(port) ON DELETE CASCADE,"
                "FOREIGN KEY (user) REFERENCES User(login) ON DELETE CASCADE);";
     std::cout << message.str() << std::endl;
 

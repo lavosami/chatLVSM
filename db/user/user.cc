@@ -21,7 +21,7 @@ int addUser(std::string& login, std::string& password) {
   }
 }
 
-void deleteUser(std::string& login, std::string& password) {
+void deleteUser(std::string& login) {
   sqlite3* db;
   int rc = sqlite3_open("db.sqlite3", &db);
 
@@ -34,9 +34,6 @@ void deleteUser(std::string& login, std::string& password) {
     if (getUser(login)) {
       del << "DELETE FROM User WHERE login = '" << login << "';";
       int reg = sqlite3_exec(db, del.str().c_str(), NULL, NULL, NULL);
-
-      std::cout << "User: " << login << " & " << password << " deleted!"
-                << std::endl;
     } else {
       std::cout << "User: " << login << " is not found!" << std::endl;
     }
@@ -77,10 +74,8 @@ bool getUser(std::string& login) {
     int reg = sqlite3_exec(db, get.str().c_str(), callback, &user, NULL);
 
     if (!user.login.empty()) {
-      std::cout << "User is found!: " << login << std::endl;
       return true;
     } else {
-      std::cout << "No matches with: " << login << std::endl;
       return false;
     }
 
