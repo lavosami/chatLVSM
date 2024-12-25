@@ -31,13 +31,10 @@ int main(int argc, char* argv[]) {
 
     std::array<char, MAX_IP_PACK_SIZE> message;
 
-    std::string ll = "admin";
-    std::string pp = "pass";
-    addUser(ll, pp);
-
     std::string login = argv[1];
     std::string password;
     std::string port = argv[3];
+    std::string msg;
 
     if (getUser(login)) {
       std::cout << "User " << login << " exists" << std::endl;
@@ -55,7 +52,7 @@ int main(int argc, char* argv[]) {
       std::cout << "Enter password: ";
       std::getline(std::cin, password);
       addUser(login, password);
-      std::cout << login << " added to chat";
+      std::cout << login << " added to chat" << std::endl;
     }
 
     std::cout << "Hello, " << login << "!" << std::endl;
@@ -64,18 +61,18 @@ int main(int argc, char* argv[]) {
       memset(message.data(), '\0', message.size());
       if (!std::cin.getline(message.data(),
                             MAX_IP_PACK_SIZE - PADDING - MAX_NICKNAME)) {
-        //std::cin.clear();
+        std::cin.clear();
       }
       std::string input = message.data();
-      if (input == "*exit") {
+      if (input == "\\\\exit") {
         std::cout << "Goodbye " << login << "!" << std::endl;
         break;
-      } else if (input == "*IWANNAQUIT") {
+      } else if (input == "\\\\IWANNAQUIT") {
         std::cout << "Okay " << login
                   << " we will glad to see you in future chats!";
         deleteUser(login);
         break;
-      } else if (input == "*editpass") {
+      } else if (input == "\\\\editpass") {
         std::cout << "Enter your old password: ";
         std::getline(std::cin, password);
 
@@ -87,6 +84,12 @@ int main(int argc, char* argv[]) {
         std::cout << "Enter new password:";
         std::getline(std::cin, password);
         editUser(login, password);
+
+      } else if (input == "\\\\deletemsg") {
+        std::cout << "Which message you wanna delete: ";
+        std::getline(std::cin, msg);
+        deleteMessage(port, login, msg);
+
       } else {
         std::string msg = message.data();
         std::string datetime = getCurrentTime();
