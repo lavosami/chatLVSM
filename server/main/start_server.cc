@@ -34,12 +34,7 @@ int main(int argc, char* argv[]) {
       workers.add_thread(t);
     }
 
-    std::string login = "admin";
-    std::string password = "password";
-
     createDB();
-
-    addUser(login, password);
 
     std::string command;
 
@@ -50,6 +45,7 @@ int main(int argc, char* argv[]) {
       // Обработка команд
       if (command == "exit") {
         std::cout << "exiting..." << std::endl;
+        //deleteDB();
         return 0;
       } else if (command == "hello") {
         std::cout << "hello." << std::endl;
