@@ -1,6 +1,16 @@
+#include <ctime>
 #include "client/lib/Client.h"
 #include "db/db/db.h"
+#include "db/message/message.h"
 #include "db/user/user.h"
+
+std::string getCurrentTime() {
+  auto now = std::time(nullptr);
+  auto tm = *std::localtime(&now);
+  char buffer[80];
+  std::strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S", &tm);
+  return std::string(buffer);
+}
 
 int main(int argc, char* argv[]) {
   try {
@@ -21,12 +31,16 @@ int main(int argc, char* argv[]) {
 
     std::array<char, MAX_IP_PACK_SIZE> message;
 
+    std::string ll = "admin";
+    std::string pp = "pass";
+    addUser(ll, pp);
+
     std::string login = argv[1];
     std::string password;
-    std::string command;
+    std::string port = argv[3];
 
     if (getUser(login)) {
-      std::cout << "User: " << login << " exists" << std::endl;
+      std::cout << "User " << login << " exists" << std::endl;
 
       std::cout << "Enter your password: ";
       std::getline(std::cin, password);
@@ -50,9 +64,35 @@ int main(int argc, char* argv[]) {
       memset(message.data(), '\0', message.size());
       if (!std::cin.getline(message.data(),
                             MAX_IP_PACK_SIZE - PADDING - MAX_NICKNAME)) {
-        std::cin.clear();
+        //std::cin.clear();
       }
-      client.write(message);
+      std::string input = message.data();
+      if (input == "*exit") {
+        std::cout << "Goodbye " << login << "!" << std::endl;
+        break;
+      } else if (input == "*IWANNAQUIT") {
+        std::cout << "Okay " << login
+                  << " we will glad to see you in future chats!";
+        deleteUser(login);
+        break;
+      } else if (input == "*editpass") {
+        std::cout << "Enter your old password: ";
+        std::getline(std::cin, password);
+
+        while (getPass(login) != password) {
+          std::cout << "Wrong password. Try again: ";
+          std::getline(std::cin, password);
+        }
+
+        std::cout << "Enter new password:";
+        std::getline(std::cin, password);
+        editUser(login, password);
+      } else {
+        std::string msg = message.data();
+        std::string datetime = getCurrentTime();
+        addMessage(port, login, datetime, msg);
+        client.write(message);
+      }
     }
     client.close();
     t.join();

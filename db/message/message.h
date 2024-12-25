@@ -2,10 +2,9 @@
 #include <iostream>
 #include <string>
 
-void addMessage(std::string& chatport, std::string& user, std::string& time,
+void addMessage(std::string& port, std::string& user, std::string& time,
                 std::string& textofusr);
-void deleteMessage(std::string& chatport, std::string& user,
+void deleteMessage(std::string& port, std::string& user,
                    std::string& textofusr);
-bool getMessage(std::string& chatport, std::string& user);
-void editMessage(std::string& chatport, std::string& user,
-                 std::string& textofusr);
+bool getMessage(std::string& port, std::string& user);
+void editMessage(std::string& port, std::string& user, std::string& textofusr);
