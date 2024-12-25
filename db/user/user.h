@@ -2,6 +2,7 @@
 #include <iostream>
 #include <sstream>
 #include "db.h"
+#include "elcc/SHA256/SHA256.h"
 
 int addUser(std::string& login, std::string& password);
 void deleteUser(std::string& login);

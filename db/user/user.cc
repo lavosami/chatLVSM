@@ -133,7 +133,11 @@ void editUser(std::string& login, std::string& password) {
     std::cin >> oldpassword;
     prom = password;
 
-    while (prom != oldpassword) {
+    SHA256 sha;
+    sha.update(oldpassword);
+    std::array<uint8_t, 32> digest = sha.digest();
+
+    while (prom != SHA256::toString(digest)) {
       std::cout << "Wrong password!" << std::endl;
       std::cout << "Old password: " << std::endl;
       std::getline(std::cin, oldpassword);
@@ -141,14 +145,19 @@ void editUser(std::string& login, std::string& password) {
       if (oldpassword == "\\\\exit") {
         return;
       }
+
+      sha.update(oldpassword);
+      std::array<uint8_t, 32> digest = sha.digest();
     }
 
     std::cout << "Type in new password: " << std::endl;
     std::cin >> newpassword;
 
+    sha.update(newpassword);
+    std::array<uint8_t, 32> digest = sha.digest();
+
     std::cout << "New password is: " << newpassword << std::endl;
-    password = newpassword;
-    std::cout << password << std::endl;
+    password = SHA256::toString(digest);
 
     edit << "UPDATE User SET password = '" << password << "' WHERE login = '"
          << login << "';";

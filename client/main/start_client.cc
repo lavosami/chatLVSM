@@ -1,8 +1,15 @@
 #include <ctime>
+
 #include "client/lib/Client.h"
+
 #include "db/db/db.h"
 #include "db/message/message.h"
 #include "db/user/user.h"
+
+#include "elcc/Blowfish/Blowfish.h"
+#include "elcc/ECC/ECC.h"
+#include "elcc/RSA/RSA.h"
+#include "elcc/SHA256/SHA256.h"
 
 std::string getCurrentTime() {
   auto now = std::time(nullptr);
@@ -14,8 +21,8 @@ std::string getCurrentTime() {
 
 int main(int argc, char* argv[]) {
   try {
-    if (argc != 4) {
-      std::cerr << "Usage: client <nickname> <host> <port>\n";
+    if (argc != 5) {
+      std::cerr << "Usage: client <nickname> <host> <port> <encryption>\n";
       return 1;
     }
     boost::asio::io_service io_service;
@@ -32,9 +39,10 @@ int main(int argc, char* argv[]) {
     std::array<char, MAX_IP_PACK_SIZE> message;
 
     std::string login = argv[1];
-    std::string password;
+    std::string password, msg;
     std::string port = argv[3];
-    std::string msg;
+
+    SHA256 sha;
 
     if (getUser(login)) {
       std::cout << "User " << login << " exists" << std::endl;
@@ -42,9 +50,14 @@ int main(int argc, char* argv[]) {
       std::cout << "Enter your password: ";
       std::getline(std::cin, password);
 
-      while (getPass(login) != password) {
+      sha.update(password);
+      std::array<uint8_t, 32> digest = sha.digest();
+
+      while (getPass(login) != SHA256::toString(digest)) {
         std::cout << "Wrong password. Try again: ";
         std::getline(std::cin, password);
+        sha.update(password);
+        std::array<uint8_t, 32> digest = sha.digest();
       }
     } else {
       std::cout << "User: " << login << " doesn't exist" << std::endl;
@@ -52,10 +65,27 @@ int main(int argc, char* argv[]) {
       std::cout << "Enter password: ";
       std::getline(std::cin, password);
       addUser(login, password);
-      std::cout << login << " added to chat" << std::endl;
+      std::cout << login << " added to chat";
     }
 
     std::cout << "Hello, " << login << "!" << std::endl;
+
+    std::cout << "\nYou choose " << argv[4] << " encryption. " << std::endl;
+
+    // if (argv[4] == "blowfish") {
+    //   Blowfish blowfish;
+    //   std::cout << "Your key: " << blowfish.getKey() << std::endl;
+    // }
+
+    // if (argv[4] == "ecc") {
+    //   ECC ecc;
+    //   std::cout << "Your key: " << ecc.getKey() << std::endl;
+    // }
+
+    // if (argv[4] == "rsa") {
+    //   RSA rsa;
+    //   std::cout << "Your key: " << rsa.getKey() << std::endl;
+    // }
 
     while (true) {
       memset(message.data(), '\0', message.size());
