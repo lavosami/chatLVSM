@@ -6,8 +6,8 @@
 #include "db/message/message.h"
 #include "db/user/user.h"
 
-#include "elcc/Blowfish/Blowfish.h"
-#include "elcc/ECC/ECC.h"
+#include "elcc/EasyEncryption/encrypt.h"
+#include "elcc/Feistel/Feistel.h"
 #include "elcc/RSA/RSA.h"
 #include "elcc/SHA256/SHA256.h"
 
@@ -80,20 +80,26 @@ int main(int argc, char* argv[]) {
 
     std::cout << "\nYou choose " << argv[4] << " encryption. " << std::endl;
 
-    // if (argv[4] == "blowfish") {
-    //   Blowfish blowfish;
-    //   std::cout << "Your key: " << blowfish.getKey() << std::endl;
-    // }
+    std::string encryptionMethod = argv[4];
+    std::string encryptionKey;
+    RSAKeyPair rsaKeyPair;
 
-    // if (argv[4] == "ecc") {
-    //   ECC ecc;
-    //   std::cout << "Your key: " << ecc.getKey() << std::endl;
-    // }
-
-    // if (argv[4] == "rsa") {
-    //   RSA rsa;
-    //   std::cout << "Your key: " << rsa.getKey() << std::endl;
-    // }
+    if (encryptionMethod == "vigenere") {
+      std::cout << "Enter your Vigenere key: ";
+      std::getline(std::cin, encryptionKey);
+    } else if (encryptionMethod == "feistel") {
+      std::cout << "Enter your Feistel key: ";
+      std::getline(std::cin, encryptionKey);
+    } else if (encryptionMethod == "rsa") {
+      rsaKeyPair = RSA::generateRSAKeyPair();
+      std::cout << "Your RSA public key: " << rsaKeyPair.publicKey << "\n";
+      std::cout << "Your RSA private key: " << rsaKeyPair.privateKey << "\n";
+      std::cout << "Your RSA modulus: " << rsaKeyPair.modulus << "\n";
+      encryptionKey = std::to_string(rsaKeyPair.publicKey);
+    } else {
+      std::cerr << "Unknown encryption method.\n";
+      return 1;
+    }
 
     while (true) {
       memset(message.data(), '\0', message.size());
@@ -126,6 +132,20 @@ int main(int argc, char* argv[]) {
         std::string msg = message.data();
         std::string datetime = getCurrentTime();
         addMessage(port, login, datetime, msg);
+
+        // Encrypt the message before sending
+        std::string encryptedMsg;
+        if (encryptionMethod == "vigenere") {
+          encryptedMsg = encrypt_vigenere(msg, encryptionKey);
+        } else if (encryptionMethod == "feistel") {
+          Feistel feistel(encryptionKey);
+          encryptedMsg = feistel.encrypt(msg);
+        } else if (encryptionMethod == "rsa") {
+          RSA rsa(rsaKeyPair.publicKey, rsaKeyPair.privateKey, rsaKeyPair.modulus);
+          encryptedMsg = rsa.encrypt(msg);
+        }
+
+        std::copy(encryptedMsg.begin(), encryptedMsg.end(), message.data());
         client.write(message);
       }
     }

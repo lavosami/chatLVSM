@@ -1,4 +1,5 @@
-#include "elcc/RSA/RSA.h"
+#include "RSA.h"
+
 #include <cmath>
 #include <iostream>
 #include <sstream>
@@ -22,7 +23,7 @@ int modInverse(int a, int m) {
   return -1;
 }
 
-RSAKeyPair generateRSAKeyPair() {
+RSAKeyPair RSA::generateRSAKeyPair() {
   int p = 61;     // First prime
   int q = 53;     // Second prime
   int n = p * q;  // Modulus
@@ -33,27 +34,37 @@ RSAKeyPair generateRSAKeyPair() {
     ++e;
 
   int d = modInverse(e, phi);  // Private key
-  return {e, d, n};
+
+  RSAKeyPair keyPair = {e, d, n};
+
+  // clang-format off
+  std::cout << "Public key: " << e
+            << "\nPrivate key: " << d 
+            << "\nModulus: " << n 
+            << std::endl;
+  // clang-format on
+
+  return keyPair;
 }
 
-std::string rsaEncrypt(const std::string& plaintext, int publicKey,
-                       int modulus) {
+std::string RSA::encrypt(const std::string& plaintext) {
   std::ostringstream oss;
   for (char c : plaintext) {
-    int encryptedChar = static_cast<int>(std::pow(c, publicKey)) % modulus;
+    int encryptedChar = static_cast<int>(std::pow(c, this->keyPair.publicKey)) %
+                        this->keyPair.modulus;
     oss << encryptedChar << " ";
   }
   return oss.str();
 }
 
-std::string rsaDecrypt(const std::string& ciphertext, int privateKey,
-                       int modulus) {
+std::string RSA::decrypt(const std::string& ciphertext) {
   std::istringstream iss(ciphertext);
   std::ostringstream oss;
   int encryptedChar;
   while (iss >> encryptedChar) {
     char decryptedChar =
-        static_cast<char>(std::pow(encryptedChar, privateKey)) % modulus;
+        static_cast<char>(std::pow(encryptedChar, this->keyPair.privateKey)) %
+        this->keyPair.modulus;
     oss << decryptedChar;
   }
   return oss.str();

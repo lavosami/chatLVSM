@@ -9,10 +9,19 @@ struct RSAKeyPair {
   int modulus;
 };
 
-RSAKeyPair generateRSAKeyPair();
-std::string rsaEncrypt(const std::string& plaintext, int publicKey,
-                       int modulus);
-std::string rsaDecrypt(const std::string& ciphertext, int privateKey,
-                       int modulus);
+class RSA {
+ private:
+  RSAKeyPair keyPair;
+
+ public:
+  RSA(int publicKey, int privateKey, int modulus) {
+    keyPair = {publicKey, privateKey, modulus};
+  }
+
+ public:
+  static RSAKeyPair generateRSAKeyPair();
+  std::string encrypt(const std::string& plaintext);
+  std::string decrypt(const std::string& ciphertext);
+};
 
 #endif

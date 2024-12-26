@@ -1,9 +1,9 @@
-#include "elcc/Blowfish/Blowfish.h"
+#include "Feistel.h"
 #include <stdexcept>
 #include <vector>
 
 // Feistel function: XORs each character in 'half' with the corresponding character in 'key'
-std::string feistelFunction(const std::string& half, const std::string& key) {
+std::string Feistel::function(const std::string& half, const std::string& key) {
   if (key.empty()) {
     throw std::invalid_argument("Key cannot be empty.");
   }
@@ -16,8 +16,7 @@ std::string feistelFunction(const std::string& half, const std::string& key) {
 }
 
 // Feistel encryption: Splits plaintext, applies rounds of XOR-based transformations
-std::string feistelEncrypt(const std::string& plaintext,
-                           const std::string& key) {
+std::string Feistel::encrypt(const std::string& plaintext) {
   if (plaintext.size() % 2 != 0) {
     throw std::invalid_argument("Plaintext length must be even.");
   }
@@ -28,7 +27,7 @@ std::string feistelEncrypt(const std::string& plaintext,
 
   for (int round = 0; round < 16; ++round) {
     std::string temp = right;
-    right = feistelFunction(right, key);  // Apply Feistel function
+    right = this->function(right, this->key);  // Apply Feistel function
     for (size_t i = 0; i < left.size(); ++i) {
       right[i] = left[i] ^ right[i];  // XOR left with modified right
     }
@@ -39,8 +38,7 @@ std::string feistelEncrypt(const std::string& plaintext,
 }
 
 // Feistel decryption: Reverses encryption process to recover plaintext
-std::string feistelDecrypt(const std::string& ciphertext,
-                           const std::string& key) {
+std::string Feistel::decrypt(const std::string& ciphertext) {
   if (ciphertext.size() % 2 != 0) {
     throw std::invalid_argument("Ciphertext length must be even.");
   }
@@ -51,7 +49,7 @@ std::string feistelDecrypt(const std::string& ciphertext,
 
   for (int round = 15; round >= 0; --round) {
     std::string temp = left;
-    left = feistelFunction(left, key);  // Apply Feistel function
+    left = this->function(left, this->key);  // Apply Feistel function
     for (size_t i = 0; i < right.size(); ++i) {
       left[i] = right[i] ^ left[i];  // XOR right with modified left
     }
