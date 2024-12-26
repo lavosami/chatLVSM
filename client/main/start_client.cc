@@ -139,7 +139,8 @@ int main(int argc, char* argv[]) {
           Feistel feistel(encryptionKey);
           encryptedMsg = feistel.encrypt(msg);
         } else if (encryptionMethod == "rsa") {
-          RSA rsa(rsaKeyPair.publicKey, rsaKeyPair.privateKey, rsaKeyPair.modulus);
+          RSA rsa(rsaKeyPair.publicKey, rsaKeyPair.privateKey,
+                  rsaKeyPair.modulus);
           encryptedMsg = rsa.encrypt(msg);
         }
 
