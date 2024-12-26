@@ -154,7 +154,7 @@ void editUser(std::string& login, std::string& password) {
     std::cin >> newpassword;
 
     sha.update(newpassword);
-    std::array<uint8_t, 32> digest = sha.digest();
+    digest = sha.digest();
 
     std::cout << "New password is: " << newpassword << std::endl;
     password = SHA256::toString(digest);
