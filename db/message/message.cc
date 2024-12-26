@@ -36,14 +36,11 @@ bool getMessage(std::string& port, std::string& user, std::string& textofusr) {
   } else {
     std::stringstream get;
 
-    get << "SELECT * FROM User WHERE login = '" << user
-        << "' AND SELECT * FROM Chat WHERE port = '" << port
-        << "' AND SELECT * FROM Message WHERE textofusr = '" << textofusr
-        << "';";
+    get << "SELECT * FROM Message WHERE (login, port, textofusr) VALUES ('"
+        << user << "', '" << port << "', '" << textofusr << "');";
 
     if (!user.empty()) {
-      std::cout << "Message from User " << user << " found - " << textofusr
-                << " from chat with port " << port;
+      int reg = sqlite3_exec(db, get.str().c_str(), NULL, NULL, NULL);
       return true;
     } else {
       std::cout << "User - " << user << " not found!";
@@ -63,18 +60,19 @@ void deleteMessage(std::string& port, std::string& user,
     std::cout << "This DataBase doesn't exists";
     sqlite3_close(db);
   } else {
-    std::stringstream del;
+    std::stringstream del, userlog;
 
-    del << "SELECT * FROM User WHERE login = '" << user
-        << "' AND SELECT * FROM Chat WHRE port = '" << port
-        << "' AND DELETE FROM Message WHERE textofusr = '" << textofusr << "';";
+    userlog << "SELECT COUNT(*) FROM User WHERE login = '" << user << "';";
+
+    del << "DELETE FROM Message WHERE user = '" << user << "' AND textofusr ='"
+        << textofusr << "';";
 
     if (getMessage(port, user, textofusr)) {
-      std::cout << "Message of User- " << user << " is: " << textofusr
-                << " from chat with port: " << port << " is deleted!";
-      int rc = sqlite3_exec(db, del.str().c_str(), NULL, NULL, NULL);
+      int reg = sqlite3_exec(db, del.str().c_str(), NULL, NULL, NULL);
+      std::cout << "Message of User " << user << " - " << textofusr
+                << " is deleted!" << std::endl;
     } else {
-      std::cout << "User - " << user << " not found!";
+      std::cout << "User " << user << " not found!";
     }
 
     sqlite3_close(db);
