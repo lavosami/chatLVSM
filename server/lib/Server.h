@@ -4,6 +4,8 @@
 #include <boost/thread/thread.hpp>
 
 #include "protocol.h"
+#include "elcc/RSA/RSA.h"
+#include "elcc/Feistel/Feistel.h"
 
 #include <algorithm>
 #include <array>
@@ -91,10 +93,16 @@ class Session : public Participant,
   std::array<char, MAX_NICKNAME> nickname;
   std::array<char, MAX_IP_PACK_SIZE> readMessage;
   std::deque<std::array<char, MAX_IP_PACK_SIZE>> writeMessages;
+  std::string encryptionType;
+  std::string key;
+  std::shared_ptr<RSA> rsa;
+  std::shared_ptr<Feistel> feistel;
 
  public:
   Session(boost::asio::io_service& io_service,
-          boost::asio::io_service::strand& strand, Room& room);
+          boost::asio::io_service::strand& strand, Room& room,
+          const std::string& encryptionType, const std::string& key,
+          std::shared_ptr<RSA> rsa, std::shared_ptr<Feistel> feistel);
 
  private:
   void nicknameHandler(const boost::system::error_code& err);
@@ -113,11 +121,19 @@ class Server {
   boost::asio::io_service::strand& strand;
   tcp::acceptor acceptor;
   Room room;
+  std::string encryptionType;
+  std::string key;
+  std::shared_ptr<RSA> rsa;
+  std::shared_ptr<Feistel> feistel;
 
  public:
   Server(boost::asio::io_service& io_service,
          boost::asio::io_service::strand& strand,
-         const tcp::endpoint& endpoint);
+         const tcp::endpoint& endpoint,
+         const std::string& encryptionType,
+         const std::string& key,
+         std::shared_ptr<RSA> rsa,
+         std::shared_ptr<Feistel> feistel);
 
  public:
   void run();

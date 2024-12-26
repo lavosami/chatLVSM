@@ -21,7 +21,7 @@ std::string getCurrentTime() {
 
 int main(int argc, char* argv[]) {
   try {
-    if (argc != 5) {
+    if (argc != 4) {
       std::cerr << "Usage: client <nickname> <host> <port>\n";
       return 1;
     }
@@ -73,6 +73,28 @@ int main(int argc, char* argv[]) {
 
     std::cout << "Hello, " << login << "!" << std::endl;
 
+    std::string encryptionType;
+    std::string key;
+    std::shared_ptr<RSA> rsa;
+    std::shared_ptr<Feistel> feistel;
+
+    std::cout << "Choose encryption algorithm (easy, feistel, rsa): ";
+    std::getline(std::cin, encryptionType);
+
+    if (encryptionType == "easy" || encryptionType == "feistel") {
+      std::cout << "Enter key: ";
+      std::getline(std::cin, key);
+    } else if (encryptionType == "rsa") {
+      int publicKey, privateKey, modulus;
+      std::cout << "Enter public key: ";
+      std::cin >> publicKey;
+      std::cout << "Enter private key: ";
+      std::cin >> privateKey;
+      std::cout << "Enter modulus: ";
+      std::cin >> modulus;
+      rsa = std::make_shared<RSA>(publicKey, privateKey, modulus);
+    }
+
     while (true) {
       memset(message.data(), '\0', message.size());
       if (!std::cin.getline(message.data(),
@@ -110,7 +132,20 @@ int main(int argc, char* argv[]) {
         std::string msg = message.data();
         std::string datetime = getCurrentTime();
         addMessage(port, login, datetime, msg);
-        client.write(message);
+
+        std::string encryptedMessage;
+        if (encryptionType == "easy") {
+          encryptedMessage = Encrypt::encrypt(msg, key);
+        } else if (encryptionType == "feistel") {
+          encryptedMessage = feistel->encrypt(msg);
+        } else if (encryptionType == "rsa") {
+          encryptedMessage = rsa->encrypt(msg);
+        }
+
+        std::array<char, MAX_IP_PACK_SIZE> encryptedArray;
+        std::copy(encryptedMessage.begin(), encryptedMessage.end(),
+                  encryptedArray.begin());
+        client.write(encryptedArray);
       }
     }
     client.close();

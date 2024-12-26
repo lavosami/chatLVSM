@@ -1,6 +1,9 @@
 #include "db/db/db.h"
 #include "db/user/user.h"
 #include "server/lib/Server.h"
+#include "elcc/EasyEncryption/encrypt.h"
+#include "elcc/Feistel/Feistel.h"
+#include "elcc/RSA/RSA.h"
 
 int main(int argc, char* argv[]) {
   try {
@@ -19,11 +22,33 @@ int main(int argc, char* argv[]) {
     std::cout << "[" << std::this_thread::get_id() << "]" << "server starts"
               << std::endl;
 
+    std::string encryptionType;
+    std::string key;
+    std::shared_ptr<RSA> rsa;
+    std::shared_ptr<Feistel> feistel;
+
+    std::cout << "Choose encryption algorithm (easy, feistel, rsa): ";
+    std::getline(std::cin, encryptionType);
+
+    if (encryptionType == "easy" || encryptionType == "feistel") {
+      std::cout << "Enter key: ";
+      std::getline(std::cin, key);
+    } else if (encryptionType == "rsa") {
+      int publicKey, privateKey, modulus;
+      std::cout << "Enter public key: ";
+      std::cin >> publicKey;
+      std::cout << "Enter private key: ";
+      std::cin >> privateKey;
+      std::cout << "Enter modulus: ";
+      std::cin >> modulus;
+      rsa = std::make_shared<RSA>(publicKey, privateKey, modulus);
+    }
+
     std::list<std::shared_ptr<Server>> servers;
     for (int i = 1; i < argc; ++i) {
       tcp::endpoint endpoint(tcp::v4(), std::atoi(argv[i]));
       std::shared_ptr<Server> a_server(
-          new Server(*io_service, *strand, endpoint));
+          new Server(*io_service, *strand, endpoint, encryptionType, key, rsa, feistel));
       servers.push_back(a_server);
     }
 

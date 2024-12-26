@@ -1,4 +1,5 @@
 #include "Server.h"
+#include "elcc/EasyEncryption/encrypt.h"
 
 // room's funcs -------------------------------------------------------------------------
 
@@ -43,8 +44,16 @@ std::string Room::getNickname(std::shared_ptr<Participant> participant) {
 // session's funcs -------------------------------------------------------------------------
 
 Session::Session(boost::asio::io_service& io_service,
-                 boost::asio::io_service::strand& strand, Room& room)
-    : socket(io_service), strand(strand), room(room) {}
+                 boost::asio::io_service::strand& strand, Room& room,
+                 const std::string& encryptionType, const std::string& key,
+                 std::shared_ptr<RSA> rsa, std::shared_ptr<Feistel> feistel)
+    : socket(io_service),
+      strand(strand),
+      room(room),
+      encryptionType(encryptionType),
+      key(key),
+      rsa(rsa),
+      feistel(feistel) {}
 
 void Session::nicknameHandler(const boost::system::error_code& err) {
   if (strlen(nickname.data()) <= MAX_NICKNAME - 2) {
@@ -63,7 +72,21 @@ void Session::nicknameHandler(const boost::system::error_code& err) {
 
 void Session::readHandler(const boost::system::error_code& err) {
   if (!err) {
-    room.broadcast(readMessage, shared_from_this());
+    std::string decryptedMessage;
+    if (encryptionType == "easy") {
+      std::string readMessageStr(readMessage.data());
+      decryptedMessage = Encrypt::decrypt(readMessageStr, this->key);
+    } else if (encryptionType == "feistel") {
+      decryptedMessage = feistel->decrypt(readMessage.data());
+    } else if (encryptionType == "rsa") {
+      decryptedMessage = rsa->decrypt(readMessage.data());
+    }
+
+    std::array<char, MAX_IP_PACK_SIZE> decryptedArray;
+    std::copy(decryptedMessage.begin(), decryptedMessage.end(),
+              decryptedArray.begin());
+
+    room.broadcast(decryptedArray, shared_from_this());
 
     boost::asio::async_read(
         socket, boost::asio::buffer(readMessage, readMessage.size()),
@@ -116,13 +139,22 @@ void Session::onMessage(std::array<char, MAX_IP_PACK_SIZE>& message) {
 
 Server::Server(boost::asio::io_service& io_service,
                boost::asio::io_service::strand& strand,
-               const tcp::endpoint& endpoint)
-    : io_service(io_service), strand(strand), acceptor(io_service, endpoint) {
+               const tcp::endpoint& endpoint, const std::string& encryptionType,
+               const std::string& key, std::shared_ptr<RSA> rsa,
+               std::shared_ptr<Feistel> feistel)
+    : io_service(io_service),
+      strand(strand),
+      acceptor(io_service, endpoint),
+      encryptionType(encryptionType),
+      key(key),
+      rsa(rsa),
+      feistel(feistel) {
   run();
 }
 
 void Server::run() {
-  std::shared_ptr<Session> newSession(new Session(io_service, strand, room));
+  std::shared_ptr<Session> newSession(
+      new Session(io_service, strand, room, encryptionType, key, rsa, feistel));
   acceptor.async_accept(
       newSession->getSocket(),
       strand.wrap(boost::bind(&Server::onAccept, this, newSession, _1)));
