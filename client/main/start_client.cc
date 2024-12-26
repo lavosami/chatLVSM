@@ -22,7 +22,7 @@ std::string getCurrentTime() {
 int main(int argc, char* argv[]) {
   try {
     if (argc != 5) {
-      std::cerr << "Usage: client <nickname> <host> <port> <encryption>\n";
+      std::cerr << "Usage: client <nickname> <host> <port>\n";
       return 1;
     }
     boost::asio::io_service io_service;
@@ -64,34 +64,14 @@ int main(int argc, char* argv[]) {
 
       std::cout << "Enter password: ";
       std::getline(std::cin, password);
+      sha.update(password);
+      std::array<uint8_t, 32> digest = sha.digest();
+      password = SHA256::toString(digest);
       addUser(login, password);
       std::cout << login << " added to chat";
     }
 
     std::cout << "Hello, " << login << "!" << std::endl;
-
-    std::cout << "\nYou choose " << argv[4] << " encryption. " << std::endl;
-
-    std::string encryptionMethod = argv[4];
-    std::string encryptionKey;
-    RSAKeyPair rsaKeyPair;
-
-    if (encryptionMethod == "vigenere") {
-      std::cout << "Enter your Vigenere key: ";
-      std::getline(std::cin, encryptionKey);
-    } else if (encryptionMethod == "feistel") {
-      std::cout << "Enter your Feistel key: ";
-      std::getline(std::cin, encryptionKey);
-    } else if (encryptionMethod == "rsa") {
-      rsaKeyPair = RSA::generateRSAKeyPair();
-      std::cout << "Your RSA public key: " << rsaKeyPair.publicKey << "\n";
-      std::cout << "Your RSA private key: " << rsaKeyPair.privateKey << "\n";
-      std::cout << "Your RSA modulus: " << rsaKeyPair.modulus << "\n";
-      encryptionKey = std::to_string(rsaKeyPair.publicKey);
-    } else {
-      std::cerr << "Unknown encryption method.\n";
-      return 1;
-    }
 
     while (true) {
       memset(message.data(), '\0', message.size());
@@ -130,21 +110,6 @@ int main(int argc, char* argv[]) {
         std::string msg = message.data();
         std::string datetime = getCurrentTime();
         addMessage(port, login, datetime, msg);
-
-        // Encrypt the message before sending
-        std::string encryptedMsg;
-        if (encryptionMethod == "vigenere") {
-          encryptedMsg = encrypt_vigenere(msg, encryptionKey);
-        } else if (encryptionMethod == "feistel") {
-          Feistel feistel(encryptionKey);
-          encryptedMsg = feistel.encrypt(msg);
-        } else if (encryptionMethod == "rsa") {
-          RSA rsa(rsaKeyPair.publicKey, rsaKeyPair.privateKey,
-                  rsaKeyPair.modulus);
-          encryptedMsg = rsa.encrypt(msg);
-        }
-
-        std::copy(encryptedMsg.begin(), encryptedMsg.end(), message.data());
         client.write(message);
       }
     }
